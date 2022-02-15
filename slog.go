@@ -50,7 +50,7 @@ func buildFileName(dirName string) string {
 }
 
 //error
-func Warn(v ...interface{}) {
+func warn(v ...interface{}) {
 	if currentLogLevel < LOG_LEVEL_WARN {
 		return
 	}
@@ -64,11 +64,11 @@ func Warn(v ...interface{}) {
 		warnLog = _log
 	}
 
-	warnLog.Output(2, fmt.Sprintln(v...))
+	warnLog.Output(3, fmt.Sprintln(v...))
 }
 
 //error
-func Info(v ...interface{}) {
+func info(v ...interface{}) {
 	if currentLogLevel < LOG_LEVEL_INFO {
 		return
 	}
@@ -81,11 +81,11 @@ func Info(v ...interface{}) {
 		infoLog = _log
 	}
 
-	infoLog.Output(2, fmt.Sprintln(v...))
+	infoLog.Output(3, fmt.Sprintln(v...))
 }
 
 //error
-func Error(v ...interface{}) {
+func error(v ...interface{}) {
 	if currentLogLevel < LOG_LEVEL_ERROR {
 		return
 	}
@@ -98,11 +98,11 @@ func Error(v ...interface{}) {
 		errorLog = _log
 	}
 
-	errorLog.Output(2, fmt.Sprintln(v...))
+	errorLog.Output(3, fmt.Sprintln(v...))
 }
 
 //debug
-func Debug(v ...interface{}) {
+func debug(v ...interface{}) {
 	if currentLogLevel < LOG_LEVEL_DEBUG {
 		return
 	}
@@ -115,5 +115,47 @@ func Debug(v ...interface{}) {
 		debugLog = _log
 	}
 
-	debugLog.Output(2, fmt.Sprintln(v...))
+	debugLog.Output(3, fmt.Sprintln(v...))
+}
+
+//============================================
+//Errorf
+func Error(v ...interface{}) {
+	error(v...)
+}
+
+//Infof
+func Info(v ...interface{}) {
+	info(v...)
+}
+
+//Debugf
+func Debug(v ...interface{}) {
+	debug(v...)
+}
+
+//Warnf
+func Warn(v ...interface{}) {
+	warn(v...)
+}
+
+//============================================
+//Errorf
+func Errorf(format string, v ...interface{}) {
+	error(fmt.Sprintf(format, v...))
+}
+
+//Infof
+func Infof(format string, v ...interface{}) {
+	info(fmt.Sprintf(format, v...))
+}
+
+//Debugf
+func Debugf(format string, v ...interface{}) {
+	debug(fmt.Sprintf(format, v...))
+}
+
+//Warnf
+func Warnf(format string, v ...interface{}) {
+	warn(fmt.Sprintf(format, v...))
 }
