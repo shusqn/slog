@@ -1,6 +1,7 @@
 package slog
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -63,7 +64,7 @@ func Warn(v ...interface{}) {
 		warnLog = _log
 	}
 
-	warnLog.Println(v...)
+	warnLog.Output(2, fmt.Sprintln(v...))
 }
 
 //error
@@ -80,7 +81,7 @@ func Info(v ...interface{}) {
 		infoLog = _log
 	}
 
-	infoLog.Println(v...)
+	infoLog.Output(2, fmt.Sprintln(v...))
 }
 
 //error
@@ -97,7 +98,7 @@ func Error(v ...interface{}) {
 		errorLog = _log
 	}
 
-	errorLog.Println(v...)
+	errorLog.Output(2, fmt.Sprintln(v...))
 }
 
 //debug
@@ -114,5 +115,5 @@ func Debug(v ...interface{}) {
 		debugLog = _log
 	}
 
-	debugLog.Println(v...)
+	debugLog.Output(2, fmt.Sprintln(v...))
 }
