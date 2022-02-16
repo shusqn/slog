@@ -94,7 +94,7 @@ func error(v ...interface{}) {
 		return
 	}
 	if errorLogger == nil || errorLogger.expire <= time.Now().UnixMilli() {
-		logger := buildLog("[ERROR] ", infoLogger)
+		logger := buildLog("[ERROR] ", errorLogger)
 		errorLogger = logger
 	}
 	errorLogger.logger.Output(3, fmt.Sprintln(v...))
@@ -106,8 +106,8 @@ func debug(v ...interface{}) {
 		return
 	}
 	if debugLogger == nil || debugLogger.expire <= time.Now().UnixMilli() {
-		logger := buildLog("[DEBUG] ", infoLogger)
-		errorLogger = logger
+		logger := buildLog("[DEBUG] ", debugLogger)
+		debugLogger = logger
 	}
 	debugLogger.logger.Output(3, fmt.Sprintln(v...))
 }
