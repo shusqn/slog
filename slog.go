@@ -24,7 +24,7 @@ func SetCurrentLogLevel(lv int8) {
 	currentLogLevel = lv
 }
 
-//build
+//buildLog
 func buildLog(fileName string, prefix string, oldFile *os.File) (*os.File, *log.Logger) {
 	logFile, _ := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 
@@ -39,7 +39,7 @@ func buildLog(fileName string, prefix string, oldFile *os.File) (*os.File, *log.
 	return logFile, newlog
 }
 
-//
+//buildFileName
 func buildFileName(dirName string) string {
 	fileName := dirName
 	fileName += "/"
@@ -49,7 +49,7 @@ func buildFileName(dirName string) string {
 	return fileName
 }
 
-//error
+//warn
 func warn(v ...interface{}) {
 	if currentLogLevel < LOG_LEVEL_WARN {
 		return
@@ -67,7 +67,7 @@ func warn(v ...interface{}) {
 	warnLog.Output(3, fmt.Sprintln(v...))
 }
 
-//error
+//info
 func info(v ...interface{}) {
 	if currentLogLevel < LOG_LEVEL_INFO {
 		return
@@ -118,8 +118,7 @@ func debug(v ...interface{}) {
 	debugLog.Output(3, fmt.Sprintln(v...))
 }
 
-//============================================
-//Errorf
+//Error
 func Error(v ...interface{}) {
 	error(v...)
 }
@@ -139,7 +138,6 @@ func Warn(v ...interface{}) {
 	warn(v...)
 }
 
-//============================================
 //Errorf
 func Errorf(format string, v ...interface{}) {
 	error(fmt.Sprintf(format, v...))
