@@ -15,17 +15,26 @@ const (
 	LOG_LEVEL_DEBUG = 4
 )
 
-var currentLogLevel int8 = LOG_LEVEL_DEBUG
+type Slogger struct {
+	logger  *log.Logger
+	logfile *os.File
+	expire  int64
+}
 
-var errorLog, infoLog, debugLog, warnLog *log.Logger
-var errorFile, infoFile, debugFile, warnFile *os.File
+var currentLogLevel int8 = LOG_LEVEL_DEBUG
+var farmatStr = "20060102-15"
+
+var errorLogger, infoLogger, debugLogger, warnLogger *Slogger
 
 func SetCurrentLogLevel(lv int8) {
 	currentLogLevel = lv
 }
 
 //buildLog
-func buildLog(fileName string, prefix string, oldFile *os.File) (*os.File, *log.Logger) {
+func buildLog(prefix string, logger *Slogger) *Slogger {
+	dirName := time.Now().Format("2006-01-02")
+	fileName := buildFileName(dirName)
+	os.MkdirAll(dirName, 0777)
 	logFile, _ := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 
 	//多个地方同时写入
@@ -33,17 +42,21 @@ func buildLog(fileName string, prefix string, oldFile *os.File) (*os.File, *log.
 		prefix,
 		log.Lshortfile|log.LstdFlags|log.LUTC|log.Lmicroseconds)
 
-	if oldFile != nil {
-		oldFile.Close()
+	if logger != nil {
+		logger.logfile.Close()
 	}
-	return logFile, newlog
+
+	hourtimeStr := time.Now().Format(farmatStr)
+	millstime, _ := time.ParseInLocation(farmatStr, hourtimeStr, time.Local)
+	expire := millstime.UnixMilli() + int64(3600*1000)
+	return &Slogger{newlog, logFile, expire}
 }
 
 //buildFileName
 func buildFileName(dirName string) string {
 	fileName := dirName
 	fileName += "/"
-	fileName += time.Now().Format("20060102-15")
+	fileName += time.Now().Format(farmatStr)
 	fileName += ".log"
 
 	return fileName
@@ -55,16 +68,11 @@ func warn(v ...interface{}) {
 		return
 	}
 
-	dirName := time.Now().Format("2006-01-02")
-	fileName := buildFileName(dirName)
-	if warnFile == nil || warnFile.Name() != fileName {
-		os.MkdirAll(dirName, 0777)
-		_logfile, _log := buildLog(fileName, "[WARN ] ", warnFile)
-		warnFile = _logfile
-		warnLog = _log
+	if warnLogger == nil || warnLogger.expire <= time.Now().UnixMilli() {
+		logger := buildLog("[WARN ] ", warnLogger)
+		warnLogger = logger
 	}
-
-	warnLog.Output(3, fmt.Sprintln(v...))
+	warnLogger.logger.Output(3, fmt.Sprintln(v...))
 }
 
 //info
@@ -72,16 +80,12 @@ func info(v ...interface{}) {
 	if currentLogLevel < LOG_LEVEL_INFO {
 		return
 	}
-	dirName := time.Now().Format("2006-01-02")
-	fileName := buildFileName(dirName)
-	if warnFile == nil || warnFile.Name() != fileName {
-		os.MkdirAll(dirName, 0777)
-		_logfile, _log := buildLog(fileName, "[INFO ] ", infoFile)
-		infoFile = _logfile
-		infoLog = _log
-	}
 
-	infoLog.Output(3, fmt.Sprintln(v...))
+	if infoLogger == nil || infoLogger.expire <= time.Now().UnixMilli() {
+		logger := buildLog("[INFO ] ", infoLogger)
+		infoLogger = logger
+	}
+	infoLogger.logger.Output(3, fmt.Sprintln(v...))
 }
 
 //error
@@ -89,16 +93,11 @@ func error(v ...interface{}) {
 	if currentLogLevel < LOG_LEVEL_ERROR {
 		return
 	}
-	dirName := time.Now().Format("2006-01-02")
-	fileName := buildFileName(dirName)
-	if warnFile == nil || warnFile.Name() != fileName {
-		os.MkdirAll(dirName, 0777)
-		_logfile, _log := buildLog(fileName, "[ERROR] ", errorFile)
-		errorFile = _logfile
-		errorLog = _log
+	if errorLogger == nil || errorLogger.expire <= time.Now().UnixMilli() {
+		logger := buildLog("[ERROR] ", infoLogger)
+		errorLogger = logger
 	}
-
-	errorLog.Output(3, fmt.Sprintln(v...))
+	errorLogger.logger.Output(3, fmt.Sprintln(v...))
 }
 
 //debug
@@ -106,16 +105,11 @@ func debug(v ...interface{}) {
 	if currentLogLevel < LOG_LEVEL_DEBUG {
 		return
 	}
-	dirName := time.Now().Format("2006-01-02")
-	fileName := buildFileName(dirName)
-	if warnFile == nil || warnFile.Name() != fileName {
-		os.MkdirAll(dirName, 0777)
-		_logfile, _log := buildLog(fileName, "[DEBUG] ", debugFile)
-		debugFile = _logfile
-		debugLog = _log
+	if debugLogger == nil || debugLogger.expire <= time.Now().UnixMilli() {
+		logger := buildLog("[DEBUG] ", infoLogger)
+		errorLogger = logger
 	}
-
-	debugLog.Output(3, fmt.Sprintln(v...))
+	debugLogger.logger.Output(3, fmt.Sprintln(v...))
 }
 
 //Error
